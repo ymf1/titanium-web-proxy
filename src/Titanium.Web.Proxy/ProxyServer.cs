@@ -97,7 +97,9 @@ public partial class ProxyServer : IDisposable
         BufferPool = new DefaultBufferPool();
         ProxyEndPoints = new List<ProxyEndPoint>();
         TcpConnectionFactory = new TcpConnectionFactory(this);
-        if (RunTime.IsWindows && !RunTime.IsUwpOnWindows) SystemProxySettingsManager = new SystemProxyManager();
+
+        if (RunTime.IsWindows && !RunTime.IsUwpOnWindows) 
+            SystemProxySettingsManager = new SystemProxyManager();
 
         CertificateManager = new CertificateManager(rootCertificateName, rootCertificateIssuerName,
             userTrustRootCertificate, machineTrustRootCertificate, trustRootCertificateAsAdmin, ExceptionFunc);
@@ -479,6 +481,8 @@ public partial class ProxyServer : IDisposable
 
         if (isHttps)
         {
+
+            //加证书
             CertificateManager.EnsureRootCertificate();
 
             // If certificate was trusted by the machine
@@ -490,21 +494,24 @@ public partial class ProxyServer : IDisposable
         }
 
         // clear any settings previously added
-        if (isHttp) ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpProxy = false);
+        if (isHttp) 
+            ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpProxy = false);
 
-        if (isHttps) ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpsProxy = false);
+        if (isHttps) 
+            ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpsProxy = false);
 
-        SystemProxySettingsManager.SetProxy(
-            Equals(endPoint.IpAddress, IPAddress.Any) |
-            Equals(endPoint.IpAddress, IPAddress.Loopback)
-                ? "localhost"
-                : endPoint.IpAddress.ToString(),
-            endPoint.Port,
-            protocolType);
+        var host = 
+            Equals(endPoint.IpAddress, IPAddress.Any) | Equals(endPoint.IpAddress, IPAddress.Loopback)
+            ? "localhost"
+            : endPoint.IpAddress.ToString();
+        
+        SystemProxySettingsManager.SetProxy(host, endPoint.Port, protocolType);
 
-        if (isHttp) endPoint.IsSystemHttpProxy = true;
+        if (isHttp)
+            endPoint.IsSystemHttpProxy = true;
 
-        if (isHttps) endPoint.IsSystemHttpsProxy = true;
+        if (isHttps) 
+            endPoint.IsSystemHttpsProxy = true;
 
         string? proxyType = null;
         switch (protocolType)
@@ -521,8 +528,11 @@ public partial class ProxyServer : IDisposable
         }
 
         if (protocolType != ProxyProtocolType.None)
-            Console.WriteLine("Set endpoint at Ip {0} and port: {1} as System {2} Proxy", endPoint.IpAddress,
-                endPoint.Port, proxyType);
+            Console.WriteLine("Set endpoint at Ip {0} and port: {1} as System {2} Proxy"
+                , endPoint.IpAddress
+                , endPoint.Port
+                , proxyType);
+
     }
 
     /// <summary>
@@ -691,12 +701,14 @@ public partial class ProxyServer : IDisposable
     /// <param name="endPoint">The end point to validate.</param>
     private void ValidateEndPointAsSystemProxy(ExplicitProxyEndPoint endPoint)
     {
-        if (endPoint == null) throw new ArgumentNullException(nameof(endPoint));
+        if (endPoint == null) 
+            throw new ArgumentNullException(nameof(endPoint));
 
         if (!ProxyEndPoints.Contains(endPoint))
             throw new Exception("Cannot set endPoints not added to proxy as system proxy");
 
-        if (!ProxyRunning) throw new Exception("Cannot set system proxy settings before proxy has been started.");
+        if (!ProxyRunning) 
+            throw new Exception("Cannot set system proxy settings before proxy has been started.");
     }
 
     /// <summary>

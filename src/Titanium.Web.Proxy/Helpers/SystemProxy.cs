@@ -80,6 +80,9 @@ internal class SystemProxyManager
 
     /// <summary>
     ///     Set the HTTP and/or HTTPS proxy server for current machine
+    ///     
+    /// 内部使用的是操作注册表的方式
+    /// 
     /// </summary>
     /// <param name="hostname"></param>
     /// <param name="port"></param>
@@ -88,7 +91,8 @@ internal class SystemProxyManager
     {
         using (var reg = OpenInternetSettingsKey())
         {
-            if (reg == null) return;
+            if (reg == null) 
+                return;
 
             SaveOriginalProxyConfiguration(reg);
             PrepareRegistry(reg);
@@ -96,6 +100,7 @@ internal class SystemProxyManager
             var existingContent = reg.GetValue(RegProxyServer) as string;
             var existingSystemProxyValues = ProxyInfo.GetSystemProxyValues(existingContent);
             existingSystemProxyValues.RemoveAll(x => (protocolType & x.ProtocolType) != 0);
+          
             if ((protocolType & ProxyProtocolType.Http) != 0)
                 existingSystemProxyValues.Add(new HttpSystemProxyValue(hostname, port, ProxyProtocolType.Http));
 
@@ -103,11 +108,13 @@ internal class SystemProxyManager
                 existingSystemProxyValues.Add(new HttpSystemProxyValue(hostname, port, ProxyProtocolType.Https));
 
             reg.DeleteValue(RegAutoConfigUrl, false);
+
             reg.SetValue(RegProxyEnable, 1);
-            reg.SetValue(RegProxyServer,
-                string.Join(";", existingSystemProxyValues.Select(x => x.ToString()).ToArray()));
+
+            reg.SetValue(RegProxyServer, string.Join(";", existingSystemProxyValues.Select(x => x.ToString()).ToArray()));
 
             Refresh();
+
         }
     }
 
@@ -257,7 +264,8 @@ internal class SystemProxyManager
 
     private void SaveOriginalProxyConfiguration(RegistryKey reg)
     {
-        if (originalValues != null) return;
+        if (originalValues != null) 
+            return;
 
         originalValues = GetProxyInfoFromRegistry(reg);
     }
@@ -268,7 +276,8 @@ internal class SystemProxyManager
     /// <param name="reg"></param>
     private static void PrepareRegistry(RegistryKey reg)
     {
-        if (reg.GetValue(RegProxyEnable) == null) reg.SetValue(RegProxyEnable, 0);
+        if (reg.GetValue(RegProxyEnable) == null) 
+            reg.SetValue(RegProxyEnable, 0);
 
         if (reg.GetValue(RegProxyServer) == null || reg.GetValue(RegProxyEnable) as int? == 0)
             reg.SetValue(RegProxyServer, string.Empty);

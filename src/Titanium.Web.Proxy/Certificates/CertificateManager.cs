@@ -788,11 +788,16 @@ public sealed class CertificateManager : IDisposable
     /// </summary>
     public void EnsureRootCertificate()
     {
-        if (!CertValidated) CreateRootCertificate();
+
+        if (!CertValidated) 
+            CreateRootCertificate();
 
         if (TrustRootAsAdministrator)
             TrustRootCertificateAsAdmin(MachineTrustRoot);
-        else if (UserTrustRoot) TrustRootCertificate(MachineTrustRoot);
+
+        else if (UserTrustRoot) 
+            TrustRootCertificate(MachineTrustRoot);
+
     }
 
     /// <summary>
