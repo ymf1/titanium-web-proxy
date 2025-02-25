@@ -15,10 +15,20 @@ internal class TcpServerConnection : IDisposable
 {
     private bool disposed;
 
-    internal TcpServerConnection(ProxyServer proxyServer, Socket tcpSocket, HttpServerStream stream,
-        string hostName, int port, bool isHttps, SslApplicationProtocol negotiatedApplicationProtocol,
-        Version version, IExternalProxy? upStreamProxy, IPEndPoint? upStreamEndPoint, string cacheKey)
+    internal TcpServerConnection(
+        ProxyServer proxyServer
+        , Socket tcpSocket
+        , HttpServerStream stream
+        , string hostName
+        , int port
+        , bool isHttps
+        , SslApplicationProtocol negotiatedApplicationProtocol
+        , Version version
+        , IExternalProxy? upStreamProxy
+        , IPEndPoint? upStreamEndPoint
+        , string cacheKey)
     {
+
         TcpSocket = tcpSocket;
         LastAccess = DateTime.UtcNow;
         ProxyServer = proxyServer;
@@ -126,8 +136,8 @@ internal class TcpServerConnection : IDisposable
     ~TcpServerConnection()
     {
 #if DEBUG
-            // Finalizer should not be called
-            System.Diagnostics.Debugger.Break();
+        // Finalizer should not be called
+        System.Diagnostics.Debugger.Break();
 #endif
 
         Dispose(false);

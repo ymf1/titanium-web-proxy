@@ -51,10 +51,15 @@ internal class TcpConnectionFactory : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    internal string GetConnectionCacheKey(string remoteHostName, int remotePort,
-        bool isHttps, List<SslApplicationProtocol>? applicationProtocols,
-        IPEndPoint? upStreamEndPoint, IExternalProxy? externalProxy)
+    internal string GetConnectionCacheKey(
+        string remoteHostName
+        , int remotePort
+        , bool isHttps
+        , List<SslApplicationProtocol>? applicationProtocols
+        , IPEndPoint? upStreamEndPoint
+        , IExternalProxy? externalProxy)
     {
+
         // http version is ignored since its an application level decision b/w HTTP 1.0/1.1
         // also when doing connect request MS Edge browser sends http 1.0 but uses 1.1 after server sends 1.1 its response.
         // That can create cache miss for same server connection unnecessarily especially when prefetching with Connect.
@@ -111,9 +116,12 @@ internal class TcpConnectionFactory : IDisposable
     /// <param name="session">The session event arguments.</param>
     /// <param name="applicationProtocol">The application protocol.</param>
     /// <returns></returns>
-    internal async Task<string> GetConnectionCacheKey(ProxyServer server, SessionEventArgsBase session,
-        SslApplicationProtocol applicationProtocol)
+    internal async Task<string> GetConnectionCacheKey(
+        ProxyServer server
+        , SessionEventArgsBase session
+        , SslApplicationProtocol applicationProtocol)
     {
+
         List<SslApplicationProtocol>? applicationProtocols = null;
         if (applicationProtocol != default)
             applicationProtocols = new List<SslApplicationProtocol> { applicationProtocol };
@@ -129,8 +137,10 @@ internal class TcpConnectionFactory : IDisposable
         var uri = session.HttpClient.Request.RequestUri;
         var upStreamEndPoint = session.HttpClient.UpStreamEndPoint ?? server.UpStreamEndPoint;
         var upStreamProxy = customUpStreamProxy ?? (isHttps ? server.UpStreamHttpsProxy : server.UpStreamHttpProxy);
+
         return GetConnectionCacheKey(uri.Host, uri.Port, isHttps, applicationProtocols, upStreamEndPoint,
             upStreamProxy);
+
     }
 
 
@@ -144,16 +154,22 @@ internal class TcpConnectionFactory : IDisposable
     /// <param name="noCache">if set to <c>true</c> [no cache].</param>
     /// <param name="cancellationToken">The cancellation token for this async task.</param>
     /// <returns></returns>
-    internal Task<TcpServerConnection> GetServerConnection(ProxyServer proxyServer, SessionEventArgsBase session,
-        bool isConnect,
-        SslApplicationProtocol applicationProtocol, bool noCache, CancellationToken cancellationToken)
+    internal Task<TcpServerConnection> GetServerConnection(
+        ProxyServer proxyServer
+        , SessionEventArgsBase session
+        , bool isConnect
+        , SslApplicationProtocol applicationProtocol
+        , bool noCache
+        , CancellationToken cancellationToken)
     {
+
         List<SslApplicationProtocol>? applicationProtocols = null;
+
         if (applicationProtocol != default)
             applicationProtocols = new List<SslApplicationProtocol> { applicationProtocol };
 
-        return GetServerConnection(proxyServer, session, isConnect, applicationProtocols, noCache, false,
-            cancellationToken)!;
+        return GetServerConnection(proxyServer, session, isConnect, applicationProtocols, noCache, false, cancellationToken)!;
+
     }
 
     /// <summary>
@@ -328,7 +344,7 @@ internal class TcpConnectionFactory : IDisposable
         var retry = true;
         var enabledSslProtocols = sslProtocol;
 
-        retry:
+    retry:
         try
         {
             var socks = externalProxy != null && externalProxy.ProxyType != ExternalProxyType.Http;
@@ -792,4 +808,5 @@ internal class TcpConnectionFactory : IDisposable
             return Task.Factory.FromAsync(BeginConnect, EndConnect, hostName, port, socket);
         }
     }
+
 }

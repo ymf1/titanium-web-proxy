@@ -23,6 +23,10 @@ namespace Titanium.Web.Proxy;
 /// <summary>
 ///     This class is the backbone of proxy. One can create as many instances as needed.
 ///     However care should be taken to avoid using the same listening ports across multiple instances.
+///     
+/// 可以支持多实例
+/// 
+/// 这是个分部类，其他部分分散在各处
 /// </summary>
 public partial class ProxyServer : IDisposable
 {
@@ -57,6 +61,8 @@ public partial class ProxyServer : IDisposable
     private WinHttpWebProxyFinder? systemProxyResolver;
 
 
+    #region 构造方法
+
     /// <inheritdoc />
     /// <summary>
     ///     Initializes a new instance of ProxyServer class with provided parameters.
@@ -70,10 +76,18 @@ public partial class ProxyServer : IDisposable
     ///     Should we attempt to trust certificates with elevated permissions by
     ///     prompting for UAC if required?
     /// </param>
-    public ProxyServer(bool userTrustRootCertificate = true, bool machineTrustRootCertificate = false,
-        bool trustRootCertificateAsAdmin = false) : this(null, null, userTrustRootCertificate,
-        machineTrustRootCertificate, trustRootCertificateAsAdmin)
+    public ProxyServer(
+        bool userTrustRootCertificate = true
+        , bool machineTrustRootCertificate = false
+        , bool trustRootCertificateAsAdmin = false)
+        : this(
+              null
+              , null
+              , userTrustRootCertificate
+              , machineTrustRootCertificate
+              , trustRootCertificateAsAdmin)
     {
+
     }
 
     /// <summary>
@@ -90,20 +104,32 @@ public partial class ProxyServer : IDisposable
     ///     Should we attempt to trust certificates with elevated permissions by
     ///     prompting for UAC if required?
     /// </param>
-    public ProxyServer(string? rootCertificateName, string? rootCertificateIssuerName,
-        bool userTrustRootCertificate = true, bool machineTrustRootCertificate = false,
-        bool trustRootCertificateAsAdmin = false)
+    public ProxyServer(
+        string? rootCertificateName
+        , string? rootCertificateIssuerName
+        , bool userTrustRootCertificate = true
+        , bool machineTrustRootCertificate = false
+        , bool trustRootCertificateAsAdmin = false)
     {
+
         BufferPool = new DefaultBufferPool();
         ProxyEndPoints = new List<ProxyEndPoint>();
         TcpConnectionFactory = new TcpConnectionFactory(this);
 
-        if (RunTime.IsWindows && !RunTime.IsUwpOnWindows) 
+        if (RunTime.IsWindows && !RunTime.IsUwpOnWindows)
             SystemProxySettingsManager = new SystemProxyManager();
 
-        CertificateManager = new CertificateManager(rootCertificateName, rootCertificateIssuerName,
-            userTrustRootCertificate, machineTrustRootCertificate, trustRootCertificateAsAdmin, ExceptionFunc);
+        CertificateManager = new CertificateManager(
+            rootCertificateName
+            , rootCertificateIssuerName
+            , userTrustRootCertificate
+            , machineTrustRootCertificate
+            , trustRootCertificateAsAdmin
+            , ExceptionFunc);
+
     }
+
+    #endregion 构造方法
 
     /// <summary>
     ///     An factory that creates tcp connection to server.
@@ -128,6 +154,8 @@ public partial class ProxyServer : IDisposable
     /// <summary>
     ///     Gets or sets a value indicating whether requests will be chained to upstream gateway.
     ///     Defaults to false.
+    ///     
+    /// 这个属性用于指示请求是否会被链式传递到上游网关
     /// </summary>
     public bool ForwardToUpstreamGateway { get; set; }
 
@@ -374,10 +402,10 @@ public partial class ProxyServer : IDisposable
     public event AsyncEventHandler<SessionEventArgs>? BeforeRequest;
 
 #if DEBUG
-        /// <summary>
-        ///     Intercept request body send event to server. 
-        /// </summary>
-        public event AsyncEventHandler<BeforeBodyWriteEventArgs>? OnRequestBodyWrite;
+    /// <summary>
+    ///     Intercept request body send event to server. 
+    /// </summary>
+    public event AsyncEventHandler<BeforeBodyWriteEventArgs>? OnRequestBodyWrite;
 #endif
     /// <summary>
     ///     Intercept response event from server.
@@ -385,10 +413,10 @@ public partial class ProxyServer : IDisposable
     public event AsyncEventHandler<SessionEventArgs>? BeforeResponse;
 
 #if DEBUG
-        /// <summary>
-        ///     Intercept request body send event to client. 
-        /// </summary>
-        public event AsyncEventHandler<BeforeBodyWriteEventArgs>? OnResponseBodyWrite;
+    /// <summary>
+    ///     Intercept request body send event to client. 
+    /// </summary>
+    public event AsyncEventHandler<BeforeBodyWriteEventArgs>? OnResponseBodyWrite;
 #endif
     /// <summary>
     ///     Intercept after response event from server.
@@ -494,23 +522,23 @@ public partial class ProxyServer : IDisposable
         }
 
         // clear any settings previously added
-        if (isHttp) 
+        if (isHttp)
             ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpProxy = false);
 
-        if (isHttps) 
+        if (isHttps)
             ProxyEndPoints.OfType<ExplicitProxyEndPoint>().ToList().ForEach(x => x.IsSystemHttpsProxy = false);
 
-        var host = 
+        var host =
             Equals(endPoint.IpAddress, IPAddress.Any) | Equals(endPoint.IpAddress, IPAddress.Loopback)
             ? "localhost"
             : endPoint.IpAddress.ToString();
-        
+
         SystemProxySettingsManager.SetProxy(host, endPoint.Port, protocolType);
 
         if (isHttp)
             endPoint.IsSystemHttpProxy = true;
 
-        if (isHttps) 
+        if (isHttps)
             endPoint.IsSystemHttpsProxy = true;
 
         string? proxyType = null;
@@ -596,7 +624,8 @@ public partial class ProxyServer : IDisposable
     /// </param>
     public void Start(bool changeSystemProxySettings = true)
     {
-        if (ProxyRunning) throw new Exception("Proxy is already running.");
+        if (ProxyRunning) 
+            throw new Exception("Proxy is already running.");
 
         SetThreadPoolMinThread(ThreadPoolWorkerThread);
 
@@ -701,13 +730,13 @@ public partial class ProxyServer : IDisposable
     /// <param name="endPoint">The end point to validate.</param>
     private void ValidateEndPointAsSystemProxy(ExplicitProxyEndPoint endPoint)
     {
-        if (endPoint == null) 
+        if (endPoint == null)
             throw new ArgumentNullException(nameof(endPoint));
 
         if (!ProxyEndPoints.Contains(endPoint))
             throw new Exception("Cannot set endPoints not added to proxy as system proxy");
 
-        if (!ProxyRunning) 
+        if (!ProxyRunning)
             throw new Exception("Cannot set system proxy settings before proxy has been started.");
     }
 

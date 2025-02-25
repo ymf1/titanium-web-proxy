@@ -43,15 +43,31 @@ internal class HttpSystemProxyValue
 
 /// <summary>
 ///     Manage system proxy settings
+///     内部主要是操作注册表
 /// </summary>
 [SuppressMessage("StyleCop.CSharp.MaintainabilityRules", "SA1402:FileMayOnlyContainASingleType",
     Justification = "Reviewed.")]
 internal class SystemProxyManager
 {
     private const string RegKeyInternetSettings = "Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings";
+
+
+    /// <summary>
+    /// AutoConfigURL 是 Windows 注册表中的一个键，
+    /// 用于配置 Internet Explorer 以及其他支持使用自动配置脚本的应用程序的代理设置。
+    /// 这个键存储了一个 URL，指向一个自动配置脚本（PAC 文件）。
+    /// PAC 文件包含 JavaScript 代码，用于动态确定网络请求应通过哪个代理服务器。
+    /// </summary>
     private const string RegAutoConfigUrl = "AutoConfigURL";
+   
     private const string RegProxyEnable = "ProxyEnable";
     private const string RegProxyServer = "ProxyServer";
+
+    /// <summary>
+    /// RegProxyOverride 是 Windows 注册表中的一个键，
+    /// 用于配置 Internet Explorer 以及其他支持使用代理服务器的应用程序的代理绕过设置。
+    /// 它允许指定哪些地址或主机不使用代理服务器，直接访问。这对于本地网络资源或特定的外部域名非常有用。
+    /// </summary>
     private const string RegProxyOverride = "ProxyOverride";
 
     internal const int InternetOptionSettingsChanged = 39;

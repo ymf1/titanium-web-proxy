@@ -99,6 +99,8 @@ namespace Titanium.Web.Proxy.Examples.Basic
             // An explicit endpoint is where the client knows about the existence of a proxy
             // So client sends request in a proxy friendly manner
             proxyServer.AddEndPoint(explicitEndPoint);
+
+            //启动
             proxyServer.Start();
 
             // Transparent endpoint is useful for reverse proxy (client is not aware of the existence of proxy)
@@ -140,8 +142,8 @@ namespace Titanium.Web.Proxy.Examples.Basic
             //proxyServer.SetAsSystemHttpsProxy(explicitEndPoint);
 
             //注册为系统代理
-            if (RunTime.IsWindows)
-                proxyServer.SetAsSystemProxy(explicitEndPoint, ProxyProtocolType.AllHttp);
+            //if (RunTime.IsWindows)
+            //    proxyServer.SetAsSystemProxy(explicitEndPoint, ProxyProtocolType.AllHttp);
 
         }
 
